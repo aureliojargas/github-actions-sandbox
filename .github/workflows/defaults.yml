@@ -1,0 +1,8 @@
+on: push
+defaults:
+  runs-on: ubuntu-latest
+
+jobs:
+  foo:
+    steps:
+      - uses: actions/checkout@v2
