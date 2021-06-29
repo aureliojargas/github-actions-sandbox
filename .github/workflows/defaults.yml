@@ -1,8 +1,10 @@
 on: push
-defaults:
-  runs-on: ubuntu-latest
+#defaults:
+  # Startup failure
+  # runs-on: ubuntu-latest
 
 jobs:
   foo:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
