@@ -1,0 +1,19 @@
+on: push
+jobs:
+  env-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Redefine LANG via env
+        env:
+          LANG: en_US.UTF-8
+        run: |
+          echo LANG=$LANG
+          date
+
+      - name: Redefine LANG inside the script
+        run: |
+          echo LANG=$LANG
+          date
+          LANG=en_US.UTF-8 date
+          export LANG=en_US.UTF-8
+          date
