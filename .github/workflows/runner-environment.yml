@@ -1,0 +1,62 @@
+on: push
+jobs:
+  runner-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cat /etc/os-release
+      - run: uname -a
+      - run: python3 --version
+      - run: git --version
+      - run: bash --version | head -n 1
+      - run: ls -l $(which sh)
+      - run: dpkg -s dash | grep Version
+      - run: sed --version | head -n 1
+      - run: id
+      - run: pwd
+      - run: "echo $PATH | tr : '\n'"
+      - run: |
+          find $HOME \
+            -not -path '/home/runner/.nvm/*' \
+            -not -path '/home/runner/runners/*'
+
+  # Shell-specific data
+
+  shell-default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo '2021-06-30: shell: /usr/bin/bash -e {0}'
+      - run: alias
+      - run: trap
+      - run: set -o
+      - run: set
+
+  shell-bash:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo '2021-06-30: shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}'
+      - run: alias
+      - run: trap
+      - run: set -o
+      - run: set
+
+  shell-sh:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: sh
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo '2021-06-30: shell: /usr/bin/sh -e {0}'
+      - run: alias
+      - run: trap
+      - run: set -o
+      - run: set
