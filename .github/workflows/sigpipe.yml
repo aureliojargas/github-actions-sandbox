@@ -73,23 +73,23 @@ jobs:
         run: true
 
       - name: Use python -c to un-ignore SIGPIPE (should PASS)
-        run: python3 -c 'import subprocess as s; s.run(["trap; yes | head -n 1"], shell=True, check=True)'
+        run: python3 -c 'import subprocess as s; s.run("trap; yes | head -n 1", shell=True, check=True)'
 
       - name: Use python -c to un-ignore SIGPIPE (should FAIL)
-        run: python3 -c 'import subprocess as s; s.run(["false"], shell=True, check=True)'
+        run: python3 -c 'import subprocess as s; s.run("false", shell=True, check=True)'
         continue-on-error: true
 
       - name: Using Python as shell to run shell commands - cmd=
         run: |
           cmd = "trap; yes | head -n 1"
-          import subprocess as s; s.run([cmd], shell=True, check=True)
+          import subprocess as s; s.run(cmd, shell=True, check=True)
         shell: python
 
       - name: Using Python as shell to run shell commands - env var
         env:
           CMD: "trap; yes | head -n 1"
         run: |
-          import os, subprocess as s; s.run([os.environ["CMD"]], shell=True, check=True)
+          import os, subprocess as s; s.run(os.environ["CMD"], shell=True, check=True)
         shell: python
 
       - name: >
@@ -99,4 +99,4 @@ jobs:
         run: |
           trap; yes | head -n 1
         shell: |
-          python3 -c 'import subprocess as s; with open("{0}") as f: s.run([f.read()], shell=True, check=True)'
+          python3 -c 'import subprocess as s; with open("{0}") as f: s.run(f.read(), shell=True, check=True)'
