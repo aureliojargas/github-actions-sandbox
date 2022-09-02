@@ -18,4 +18,4 @@
   https://github.com/actions/virtual-environments
 
 * Ubuntu-20.04 pre-installed software:\
-  https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
+  https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2004-Readme.md
