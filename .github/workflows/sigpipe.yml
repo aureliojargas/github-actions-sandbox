@@ -52,14 +52,23 @@ jobs:
         run: yes | head -n 1
         shell: bash --noprofile --norc -e {0}
 
-  fix-using-env:
-    runs-on: ubuntu-latest
+  fix-using-env-ubuntu-20-04:
+    runs-on: ubuntu-20.04
     steps:
       - name: >
           Use env --default-signal=PIPE as shell to restore SIGPIPE
           default behavior. NOT SUPPORTED in Ubuntu 20.04, maybe in the
           next version.
         continue-on-error: true
+        run: yes | head -n 1
+        shell: env --default-signal=PIPE bash --noprofile --norc -eo pipefail {0}
+
+  fix-using-env-ubuntu-22-04:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: >
+          Use env --default-signal=PIPE as shell to restore SIGPIPE
+          default behavior.
         run: yes | head -n 1
         shell: env --default-signal=PIPE bash --noprofile --norc -eo pipefail {0}
 
