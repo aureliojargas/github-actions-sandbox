@@ -1,5 +1,11 @@
 # GitHub Actions Sandbox
 
+This is the repository where I learn/discover/debug how the GitHub CI works.
+
+See the open pull requests. Each one is a different test case.
+
+### References
+
 * Docs: https://docs.github.com/en/actions/reference
 
 * YAML file reference: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
