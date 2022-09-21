@@ -1,0 +1,118 @@
+on: push
+jobs:
+  sigpipe:
+    runs-on: ubuntu-latest
+    steps:
+      # Sometimes SIGPIPE is ignored
+
+      - name: Is SIGPIPE trapped and ignored? YES -- no shell specified
+        run: trap
+
+      - name: Is SIGPIPE trapped and ignored? YES -- shell:bash
+        run: trap
+        shell: bash
+
+      - name: Is SIGPIPE trapped and ignored? YES -- shell:sh
+        run: |
+          trap
+          echo '^ trap output was empty, but SIGPIPE is ignored (see broken pipe error):'
+          yes | head -n 1
+        shell: sh
+
+      # Sometimes pipefail is active
+
+      - name: Is pipefail active? NO -- no shell specified
+        run: set -o | grep -e pipefail
+
+      - name: Is pipefail active? YES -- shell:bash
+        run: set -o | grep -e pipefail
+        shell: bash
+
+      - name: Is pipefail active? NO (not supported) -- shell:sh
+        continue-on-error: true
+        run: set -o | grep -e pipefail
+        shell: sh
+
+      - name: >
+          When SIGPIPE is ignored and pipefail is active, common
+          commands may fail with "broken pipe" error
+        continue-on-error: true
+        run: yes | head -n 1
+        shell: bash
+
+      - name: >
+          By disabling pipefail, usual SIGPIPE is not fatal, but stdout
+          is filled with "broken pipe" error messages
+        run: set +o pipefail; yes | head -n 1
+        shell: bash
+
+      - name: >
+          Same as previous step, but disabling pipefail with a custom
+          shell call that does not mention pipefail
+        run: yes | head -n 1
+        shell: bash --noprofile --norc -e {0}
+
+  fix-using-env-ubuntu-20-04:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: >
+          Use env --default-signal=PIPE as shell to restore SIGPIPE
+          default behavior. NOT SUPPORTED in Ubuntu 20.04, maybe in the
+          next version.
+        continue-on-error: true
+        run: yes | head -n 1
+        shell: env --default-signal=PIPE bash --noprofile --norc -eo pipefail {0}
+
+  fix-using-env-ubuntu-22-04:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: >
+          Use env --default-signal=PIPE as shell to restore SIGPIPE
+          default behavior. Error 141.
+        continue-on-error: true  # Error: Process completed with exit code 141.
+        run: yes | head -n 1
+        shell: env --default-signal=PIPE bash --noprofile --norc -eo pipefail {0}
+
+      - name: Prefix the first command with env --default-signal=PIPE
+        run: env --default-signal=PIPE yes | head -n 1
+
+      - name: Run the whole command with env --default-signal=PIPE, using bash -c
+        run: env --default-signal=PIPE bash -c 'yes | head -n 1'
+
+  fix-using-python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: >
+          Shell scripts cannot un-ignore a trap, but other languages
+          can. Use Python. Note that Python already un-ignores it by
+          default, there is no need to do it explicitly.
+        run: true
+
+      - name: Use python -c to un-ignore SIGPIPE (should PASS)
+        run: python3 -c 'import subprocess as s; s.run("trap; yes | head -n 1", shell=True, check=True)'
+
+      - name: Use python -c to un-ignore SIGPIPE (should FAIL)
+        run: python3 -c 'import subprocess as s; s.run("false", shell=True, check=True)'
+        continue-on-error: true
+
+      - name: Using Python as shell to run shell commands - cmd=
+        run: |
+          cmd = "trap; yes | head -n 1"
+          import subprocess as s; s.run(cmd, shell=True, check=True)
+        shell: python
+
+      - name: Using Python as shell to run shell commands - env var
+        env:
+          CMD: "trap; yes | head -n 1"
+        run: |
+          import os, subprocess as s; s.run(os.environ["CMD"], shell=True, check=True)
+        shell: python
+
+      - name: >
+          Using "python -c" as the shell to run shell commands (DOES NOT WORK
+          and I don't know why)
+        continue-on-error: true
+        run: |
+          trap; yes | head -n 1
+        shell: |
+          python3 -c 'import subprocess as s; with open("{0}") as f: s.run(f.read(), shell=True, check=True)'
