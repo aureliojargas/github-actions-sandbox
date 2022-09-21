@@ -68,9 +68,16 @@ jobs:
     steps:
       - name: >
           Use env --default-signal=PIPE as shell to restore SIGPIPE
-          default behavior.
+          default behavior. Error 141.
+        continue-on-error: true  # Error: Process completed with exit code 141.
         run: yes | head -n 1
         shell: env --default-signal=PIPE bash --noprofile --norc -eo pipefail {0}
+
+      - name: Prefix the first command with env --default-signal=PIPE
+        run: env --default-signal=PIPE yes | head -n 1
+
+      - name: Run the whole command with env --default-signal=PIPE, using bash -c
+        run: env --default-signal=PIPE bash -c 'yes | head -n 1'
 
   fix-using-python:
     runs-on: ubuntu-latest
